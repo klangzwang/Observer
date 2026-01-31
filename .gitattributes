@@ -1,2 +1,27 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# --- Unreal Engine Assets (LFS) ---
+*.uasset filter=lfs diff=lfs merge=lfs -text
+*.umap filter=lfs diff=lfs merge=lfs -text
+*.upk filter=lfs diff=lfs merge=lfs -text
+*.udk filter=lfs diff=lfs merge=lfs -text
+
+# --- Art Source Files (LFS) ---
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.obj filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.tga filter=lfs diff=lfs merge=lfs -text
+*.exr filter=lfs diff=lfs merge=lfs -text
+
+# --- C++ & Build (Standard Text) ---
+*.cpp text
+*.h text
+*.cs text
+*.sln text
+*.ini text
+*.py text
+
+# --- Git LFS Lock (Verhindert, dass zwei Leute dasselbe Asset editieren) ---
+*.uasset lockable
+*.umap lockable

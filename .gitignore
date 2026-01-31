@@ -1,0 +1,64 @@
+# --- Unreal Engine Standard ---
+Binaries/*
+Plugins/*/Binaries/*
+Intermediate/*
+Plugins/*/Intermediate/*
+Saved/*
+DerivedDataCache/*
+FileOpenOrder/*
+/Build/*
+Plugins/GASP/*
+Plugins/ScreenSpaceFogScattering/*
+Plugins/EventDispatcher/*
+
+# Ausnahme für Build-Konfigurationen (falls gewünscht)
+!/Build/*/Config/Default*.ini
+
+desktop.ini
+
+# --- C++ / Visual Studio / IDEs ---
+.vs/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+*.layout
+*.user
+*.opendb
+*.ncb
+*.idb
+*.pdb
+*.orig
+*.gtest
+*.ipch
+obj/
+*.VC.db-shm
+*.VC.db-wal
+
+# --- Xcode (macOS) ---
+.DS_Store
+DerivedData/
+Build/
+
+# --- Art Tools & Source Files ---
+# Falls du deine Arbeitsdateien (.psd, .blend) im Projektordner hast,
+# aber NICHT im Repo willst (oft besser separat zu sichern):
+# *.psd
+# *.blend
+# *.max
+# *.maya
+
+# --- Backup & Autosaves ---
+# Unreal speichert Backups oft im Content-Ordner
+Content/Autosave/*
+Content/Collections/*
+# Verhindert das Hochladen von lokal konfigurierten Layouts
+Config/DefaultEditorPerProjectUserSettings.ini
+Config/DefaultEditorSettings.ini
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class

@@ -1,0 +1,18 @@
+# Unreal Engine temporäre Dateien
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+Build/
+
+# IDE spezifische Daten
+.vs/
+.idea/
+.vscode/
+*.sln
+*.suo
+
+# Große Assets (falls im Source-Ordner)
+*.uasset
+*.umap
+*.pdb
