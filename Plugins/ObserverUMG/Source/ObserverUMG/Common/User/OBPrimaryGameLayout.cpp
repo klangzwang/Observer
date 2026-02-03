@@ -2,6 +2,9 @@
 #include "OBLocalPlayer.h"
 #include "OBUIManagerSubsystem.h"
 #include "OBUIGamePolicy.h"
+#include "OBGameMode.h"
+#include "OBTypes.h"
+#include "CommonUIExtensions.h"
 #include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
@@ -52,21 +55,32 @@ UOBPrimaryGameLayout::UOBPrimaryGameLayout(const FObjectInitializer& ObjectIniti
 
 void UOBPrimaryGameLayout::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
+
 	Layers.Add(FGameplayTag::RequestGameplayTag(FName("UI.Layer.Game")), GameLayer);
 	Layers.Add(FGameplayTag::RequestGameplayTag(FName("UI.Layer.GameMenu")), GameMenuLayer);
 	Layers.Add(FGameplayTag::RequestGameplayTag(FName("UI.Layer.Menu")), MenuLayer);
 	Layers.Add(FGameplayTag::RequestGameplayTag(FName("UI.Layer.Modal")), ModalLayer);
 }
 
-void UOBPrimaryGameLayout::RegisterLayer(FGameplayTag LayerTag, UCommonActivatableWidgetContainerBase* LayerWidget)
+void UOBPrimaryGameLayout::NativeConstruct()
 {
-	if (!IsDesignTime())
+	Super::NativeConstruct();
+
+	if (AOBGameMode* OBGameMode = Cast<AOBGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
-		LayerWidget->SetTransitionDuration(0.0);
-		Layers.Add(LayerTag, LayerWidget);
+		if (OBGameMode->HUDLayout.LayerID.IsValid() && OBGameMode->HUDLayout.LayoutClass != nullptr)
+		{
+			UCommonUIExtensions::PushContentToLayer_ForPlayer(
+				GetOwningLocalPlayer(),
+				OBGameMode->HUDLayout.LayerID,
+				OBGameMode->HUDLayout.LayoutClass,
+				true
+			);
+		}
 	}
 }
-	
+
 void UOBPrimaryGameLayout::FindAndRemoveWidgetFromLayer(UCommonActivatableWidget* ActivatableWidget)
 {
 	for (const auto& LayerKVP : Layers)

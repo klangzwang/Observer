@@ -7,7 +7,6 @@ UOBLocalPlayer::UOBLocalPlayer()
 {
 }
 
-
 FDelegateHandle UOBLocalPlayer::CallAndRegister_OnPlayerControllerSet(FPlayerControllerSetDelegate::FDelegate Delegate)
 {
 	APlayerController* PC = GetPlayerController(GetWorld());

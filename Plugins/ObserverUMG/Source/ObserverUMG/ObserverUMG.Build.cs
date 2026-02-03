@@ -16,8 +16,7 @@ namespace UnrealBuildTool.Rules
 				System.IO.Path.Combine(ModuleDirectory, "Common/Button"),
 				System.IO.Path.Combine(ModuleDirectory, "Common/User"),
 				System.IO.Path.Combine(ModuleDirectory, "Library"),
-				System.IO.Path.Combine(ModuleDirectory, "System"),
-				System.IO.Path.Combine(ModuleDirectory, "Task")
+				System.IO.Path.Combine(ModuleDirectory, "System")
 			}
 			);
 
@@ -53,7 +52,6 @@ namespace UnrealBuildTool.Rules
 				"PreLoadScreen",
 				"RenderCore",
 				"DeveloperSettings",
-				"ObserverLoading",
 				"ObserverFramework",
 				"ObserverInterfaces",
 				"ObserverInput"

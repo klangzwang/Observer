@@ -1,12 +1,13 @@
 ﻿#include "OBPrimaryLayout.h"
-#include "NativeGameplayTags.h"
 #include "CommonUIExtensions.h"
-#include "Input/CommonUIInputTypes.h"
+#include "NativeGameplayTags.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(OBPrimaryLayout)
 
-UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_UI_LAYER_MENU, "UI.Layer.Menu");
-UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_UI_ACTION_ESCAPE, "UI.Action.Escape");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(LayerTag_Game, "UI.Layer.Game");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(LayerTag_GameMenu, "UI.Layer.GameMenu");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(LayerTag_Menu, "UI.Layer.Menu");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(LayerTag_Modal, "UI.Layer.Modal");
 
 //
 // PrimaryLayout
@@ -24,6 +25,14 @@ UOBMenuLayout::UOBMenuLayout(const FObjectInitializer& ObjectInitializer)
 {
 }
 
+void UOBMenuLayout::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	if (KeyActionClass != nullptr)
+		UCommonUIExtensions::PushContentToLayer_ForPlayer(GetOwningLocalPlayer(), LayerTag_Menu, KeyActionClass, true);
+}
+
 //
 // GameLayout
 //
@@ -35,13 +44,7 @@ UOBGameLayout::UOBGameLayout(const FObjectInitializer& ObjectInitializer)
 void UOBGameLayout::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	RegisterUIActionBinding(FBindUIActionArgs(FUIActionTag::ConvertChecked(TAG_UI_ACTION_ESCAPE), false, FSimpleDelegate::CreateUObject(this, &UOBGameLayout::HandleKeyAction)));
-}
 
-void UOBGameLayout::HandleKeyAction()
-{
-	if (ensure(!KeyActionClass.IsNull()))
-	{
-		UCommonUIExtensions::PushStreamedContentToLayer_ForPlayer(GetOwningLocalPlayer(), TAG_UI_LAYER_MENU, KeyActionClass);
-	}
+	if (GameHUDClass != nullptr)
+		UCommonUIExtensions::PushContentToLayer_ForPlayer(GetOwningLocalPlayer(), LayerTag_Game, GameHUDClass, true);
 }

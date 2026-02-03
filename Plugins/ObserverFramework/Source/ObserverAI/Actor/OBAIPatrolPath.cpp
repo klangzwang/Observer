@@ -20,7 +20,9 @@ AOBAIPatrolPath::AOBAIPatrolPath()
         SphereRadius
     );
 
+#if WITH_EDITORONLY_DATA
     SplineComponent->GetIcon()->SetRelativeLocation(Origin);
+#endif
 }
 
 void AOBAIPatrolPath::BeginPlay()

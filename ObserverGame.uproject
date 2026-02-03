@@ -25,6 +25,10 @@
 		{
 			"Name": "GASP",
 			"Enabled": true
+		},
+		{
+			"Name": "GitSourceControl",
+			"Enabled": false
 		}
 	]
 }

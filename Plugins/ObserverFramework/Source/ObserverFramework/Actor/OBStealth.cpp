@@ -36,10 +36,12 @@ AOBStealth::AOBStealth()
 
 	Box->SetCollisionProfileName(NAME_StealthCollisionProfile_Box);
 	Box->ShapeColor = FColor::Cyan;
-	Box->SetOverlayColor(FColor::White);
 	Box->SetBoxExtent(FVector(200.f, 200.f, 100.f));
 	Box->SetLineThickness(1.f);
 	Box->SetHiddenInGame(false);
+#if WITH_EDITOR
+	Box->SetOverlayColor(FColor::White);
+#endif
 
 	Box->OnComponentBeginOverlap.AddDynamic(this, &AOBStealth::OnOverlapBegin);
 	Box->OnComponentEndOverlap.AddDynamic(this, &AOBStealth::OnOverlapEnd);

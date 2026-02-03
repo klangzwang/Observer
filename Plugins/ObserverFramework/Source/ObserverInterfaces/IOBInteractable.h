@@ -11,10 +11,10 @@ struct FInteractionData
 public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = true))
-    FString ActionName;
+    FString ActionName = "None";
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = true))
-    float InteractionDuration;
+    float InteractionDuration = 0.f;
 };
 
 UINTERFACE(MinimalAPI)

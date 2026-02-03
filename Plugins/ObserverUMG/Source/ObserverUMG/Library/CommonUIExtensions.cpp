@@ -49,7 +49,7 @@ bool UCommonUIExtensions::IsOwningPlayerUsingGamepad(const UUserWidget* WidgetCo
 	return false;
 }
 
-UCommonActivatableWidget* UCommonUIExtensions::GetHUDLayout(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName)
+UCommonActivatableWidget* UCommonUIExtensions::GetPrimaryLayout(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName)
 {
 	if (!ensure(LocalPlayer))
 	{
@@ -73,7 +73,7 @@ UCommonActivatableWidget* UCommonUIExtensions::GetHUDLayout(const ULocalPlayer* 
 	return nullptr;
 }
 
-UCommonActivatableWidget* UCommonUIExtensions::PushContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSubclassOf<UCommonActivatableWidget> WidgetClass)
+UCommonActivatableWidget* UCommonUIExtensions::PushContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSoftClassPtr<UCommonActivatableWidget> WidgetClass, bool PushASync)
 {
 	if (!ensure(LocalPlayer) || !ensure(WidgetClass != nullptr))
 	{
@@ -86,7 +86,7 @@ UCommonActivatableWidget* UCommonUIExtensions::PushContentToLayer_ForPlayer(cons
 		{
 			if (UOBPrimaryGameLayout* RootLayout = Policy->GetRootLayout(CastChecked<UOBLocalPlayer>(LocalPlayer)))
 			{
-				return RootLayout->PushWidgetToLayerStack(LayerName, WidgetClass);
+				return RootLayout->PushWidgetToLayerStack(LayerName, WidgetClass, PushASync);
 			}
 		}
 	}
@@ -94,6 +94,7 @@ UCommonActivatableWidget* UCommonUIExtensions::PushContentToLayer_ForPlayer(cons
 	return nullptr;
 }
 
+/*
 void UCommonUIExtensions::PushStreamedContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSoftClassPtr<UCommonActivatableWidget> WidgetClass)
 {
 	if (!ensure(LocalPlayer) || !ensure(!WidgetClass.IsNull()))
@@ -113,6 +114,7 @@ void UCommonUIExtensions::PushStreamedContentToLayer_ForPlayer(const ULocalPlaye
 		}
 	}
 }
+*/
 
 void UCommonUIExtensions::PopContentFromLayer(UCommonActivatableWidget* ActivatableWidget)
 {

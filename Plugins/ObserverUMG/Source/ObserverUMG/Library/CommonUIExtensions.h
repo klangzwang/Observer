@@ -32,13 +32,13 @@ public:
 	static bool IsOwningPlayerUsingGamepad(const UUserWidget* WidgetContextObject);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Global UI Extensions")
-	static UCommonActivatableWidget* GetHUDLayout(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName);
+	static UCommonActivatableWidget* GetPrimaryLayout(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Global UI Extensions")
-	static UCommonActivatableWidget* PushContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSubclassOf<UCommonActivatableWidget> WidgetClass);
+	static UCommonActivatableWidget* PushContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSoftClassPtr<UCommonActivatableWidget> WidgetClass, bool PushASync);
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Global UI Extensions")
-	static void PushStreamedContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSoftClassPtr<UCommonActivatableWidget> WidgetClass);
+	//UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Global UI Extensions")
+	//static void PushStreamedContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSoftClassPtr<UCommonActivatableWidget> WidgetClass);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Global UI Extensions")
 	static void PopContentFromLayer(UCommonActivatableWidget* ActivatableWidget);

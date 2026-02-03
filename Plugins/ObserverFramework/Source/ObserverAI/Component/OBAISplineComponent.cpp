@@ -309,9 +309,11 @@ UOBAISplineComponent::UOBAISplineComponent()
 	SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 	SetGenerateOverlapEvents(false);
 
+#if WITH_EDITORONLY_DATA
 	EditorUnselectedSplineSegmentColor = FLinearColor::Blue;
 	EditorSelectedSplineSegmentColor = FLinearColor::Yellow;
 	EditorTangentColor = FLinearColor::Green;
+#endif
 }
 
 #if WITH_EDITORONLY_DATA

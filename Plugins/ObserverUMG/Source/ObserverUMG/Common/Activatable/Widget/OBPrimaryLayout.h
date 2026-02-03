@@ -27,6 +27,13 @@ class UOBMenuLayout : public UOBPrimaryLayout
 public:
 
 	UOBMenuLayout(const FObjectInitializer& ObjectInitializer);
+
+	virtual void NativeOnInitialized() override;
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Observer|Widget")
+	TSoftClassPtr<UCommonActivatableWidget> KeyActionClass;
 };
 
 //
@@ -45,8 +52,6 @@ public:
 
 protected:
 
-	void HandleKeyAction();
-
 	UPROPERTY(EditDefaultsOnly, Category = "Observer|Widget")
-	TSoftClassPtr<UOBActivatable> KeyActionClass;
+	TSoftClassPtr<UCommonActivatableWidget> GameHUDClass;
 };
