@@ -8,6 +8,11 @@
 			"Name": "ObserverGame",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "ObserverEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
@@ -28,6 +33,10 @@
 		},
 		{
 			"Name": "GitSourceControl",
+			"Enabled": false
+		},
+		{
+			"Name": "PythonScriptPlugin",
 			"Enabled": false
 		}
 	]

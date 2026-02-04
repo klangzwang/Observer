@@ -46,7 +46,8 @@ void AOBCapturePoint::SetActiveAndRegister()
 			if (DeviceManager)
 			{
 				DeviceManager->ActiveCapturePoints.Add(this);
-				IsActivated = true;}
+				IsActivated = true;
+			}
 		}
 	}
 }
