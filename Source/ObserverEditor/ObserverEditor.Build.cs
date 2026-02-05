@@ -30,6 +30,7 @@ public class ObserverEditor : ModuleRules
 				"PhysicsCore",
 				"StudioTelemetry",
 				"ObserverGame",
+				"ApplicationCore"
             }
         );
 
