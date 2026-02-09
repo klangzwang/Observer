@@ -134,3 +134,14 @@ void UOBActivatable::OnOutroFinished()
 
     Super::NativeOnDeactivated();
 }
+
+void UOBActivatable::NotifyHUDWidgetIsDone()
+{
+	DeactivateWidget();
+	Reset();
+}
+
+void UOBActivatable::SetLifeTime(float Lifespan)
+{
+	GetWorld()->GetTimerManager().SetTimer(LifeTimer, this, &UOBActivatable::NotifyHUDWidgetIsDone, Lifespan, false);
+}

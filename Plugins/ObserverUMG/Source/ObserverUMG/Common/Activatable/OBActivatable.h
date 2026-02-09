@@ -18,11 +18,22 @@ class UOBActivatable : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
 
+	UFUNCTION(BlueprintCallable, Category = Hud)
+	virtual void SetLifeTime(float Lifespan);
+
+	UFUNCTION(BlueprintCallable, Category = Hud)
+	void NotifyHUDWidgetIsDone();
+
 public:
 
 	UOBActivatable(const FObjectInitializer& ObjectInitializer);
 
 	virtual TOptional<FUIInputConfig> GetDesiredInputConfig() const override;
+
+
+protected:
+
+	FTimerHandle LifeTimer;
 
 protected:
 

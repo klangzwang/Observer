@@ -62,7 +62,8 @@ namespace UnrealBuildTool.Rules
 				"AudioMixer",
 				"AudioModulation",
 				"ObserverInterfaces",
-				"ObserverInput"
+				"ObserverInput",
+				"MoviePlayer"
 			}
 			);
 				

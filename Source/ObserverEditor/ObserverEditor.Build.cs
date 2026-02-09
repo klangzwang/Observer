@@ -52,7 +52,8 @@ public class ObserverEditor : ModuleRules
 				"PythonScriptPlugin",
 				"Blutility",
 				"UMG",
-				"UMGEditor"
+				"UMGEditor",
+				"MoviePlayer"
 			}
         );
 

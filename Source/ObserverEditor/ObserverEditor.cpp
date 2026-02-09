@@ -1,5 +1,6 @@
 #include "ObserverEditor.h"
 #include "GameEditorToolSet.h"
+#include "SlateExtras.h"
 
 #define LOCTEXT_NAMESPACE "ObserverEditor"
 

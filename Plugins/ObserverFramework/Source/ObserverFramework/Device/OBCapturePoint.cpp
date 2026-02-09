@@ -1,122 +1,94 @@
 #include "OBCapturePoint.h"
-#include "OBDeviceComponent.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/GameStateBase.h"
+#include "Components/CapsuleComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(OBCapturePoint)
 
-AOBCapturePoint::AOBCapturePoint()
+AOBCapturePoint::AOBCapturePoint(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
-	PrimaryActorTick.TickInterval = 0.1f;
-	PrimaryActorTick.bCanEverTick = true;
+	Capsule->OnComponentBeginOverlap.AddDynamic(this, &AOBDeviceBase::OnOverlapBegin);
+	Capsule->OnComponentEndOverlap.AddDynamic(this, &AOBDeviceBase::OnOverlapEnd);
+
+	SecondsToCapture = 10;
+	SecondsCaptureFall = 5;
+
+	bIsCapturedByPlayer = false;
+	bIsCapturedByEnemy = true;
+
+	bHasProgress = true;
+
+	DeviceName = "Capture";
 }
 
 void AOBCapturePoint::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActiveAndRegister();
-}
 
-void AOBCapturePoint::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	ResetCaptureProgress();
-	Super::EndPlay(EndPlayReason);
+	RegisterDevice(this);
 }
 
 void AOBCapturePoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetLocalRole() == ROLE_Authority && IsActivated)
-	{
-		UpdateNearbyPlayers();
-		UpdateCaptureProgress();
-	}
-}
+	//
+	// Debug Messages
+	//
+	GEngine->AddOnScreenDebugMessage(00, 0.1f, FColor::White, FString::Printf(TEXT("Progress: %f"), CurrentProgress));
+	GEngine->AddOnScreenDebugMessage(11, 0.1f, FColor::Yellow, FString::Printf(TEXT("CharactersInCapsule: %i"), CharactersInCapsule.Num()));
+	GEngine->AddOnScreenDebugMessage(22, 0.1f, FColor::Emerald, FString::Printf(TEXT("PlayersInCapsule: %i"), CapsulePlayers.Num()));
+	GEngine->AddOnScreenDebugMessage(33, 0.1f, FColor::Emerald, FString::Printf(TEXT("EnemysInCapsule: %i"), CapsuleEnemys.Num()));
+	GEngine->AddOnScreenDebugMessage(44, 0.1f, FColor::Green, bIsCapturedByPlayer ? FString::Printf(TEXT("IsCapturedByPlayer: true")) : FString::Printf(TEXT("IsCapturedByPlayer: false")));
+	GEngine->AddOnScreenDebugMessage(55, 0.1f, FColor::Green, bIsCapturedByEnemy ? FString::Printf(TEXT("IsCapturedByEnemy: true")) : FString::Printf(TEXT("IsCapturedByEnemy: false")));
+	GEngine->AddOnScreenDebugMessage(66, 0.1f, FColor::Yellow, FString::Printf(TEXT("CollisionProfileName: %s"), *Capsule->GetCollisionProfileName().ToString()));
 
-void AOBCapturePoint::SetActiveAndRegister()
-{
-	UWorld* World = GetWorld();
-	if (World && GetLocalRole() == ROLE_Authority)
+	//
+	//
+	//
+	bIsCapturedByPlayer = CurrentProgress >= 1.f ? true : false;
+	bIsCapturedByEnemy = CurrentProgress <= 0.f ? true : false;
+
+	if (bIsCapturedByPlayer)
 	{
-		AGameStateBase* GameState = World->GetGameState<AGameStateBase>();
-		if (GameState)
+		Capsule->SetLineThickness(2.f);
+		Capsule->ShapeColor = FColor::Green;
+		Capsule->SetCollisionProfileName(TEXT("OverlapEnemy"));
+	}
+	else if (bIsCapturedByEnemy)
+	{
+		Capsule->SetLineThickness(2.f);
+		Capsule->ShapeColor = FColor::Red;
+		Capsule->SetCollisionProfileName(TEXT("OverlapPlayer"));
+	}
+	else
+	{
+		Capsule->SetLineThickness(0.25f);
+		Capsule->ShapeColor = FColor::Yellow;
+		Capsule->SetCollisionProfileName(TEXT("OverlapPlayerAndEnemy"));
+	}
+
+	//
+	//
+	//
+	if (CapsulePlayers.Num() == 0 && CapsuleEnemys.Num() == 0)
+	{
+		if(!bIsCapturedByPlayer)
+			CurrentProgress = FMath::Max(0.f, CurrentProgress - (DeltaTime / SecondsCaptureFall));
+	}
+	else
+	{
+		if (CapsulePlayers.Num() > 0 && CapsuleEnemys.Num() == 0)
 		{
-			UOBDeviceComponent* DeviceManager = GameState->FindComponentByClass<UOBDeviceComponent>();
-			if (DeviceManager)
-			{
-				DeviceManager->ActiveCapturePoints.Add(this);
-				IsActivated = true;
-			}
+			CurrentProgress = FMath::Min(1.f, CurrentProgress + (DeltaTime / SecondsToCapture));
+		}
+		else
+		{
+			CurrentProgress = FMath::Max(0.f, CurrentProgress - (DeltaTime / SecondsCaptureFall));
 		}
 	}
 }
 
-void AOBCapturePoint::UpdateNearbyPlayers()
+void AOBCapturePoint::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	TeamAllyCount = 0;
-	TeamEnemyCount = 0;
-
-	TArray<FHitResult> OverlapResults;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	FVector CenterLocation = GetActorLocation();
-	GetWorld()->SweepMultiByChannel(OverlapResults, CenterLocation, CenterLocation,
-		FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(CaptureRadius), QueryParams);
-
-	for (const FHitResult& Result : OverlapResults)
-	{
-		ACharacter* Character = Cast<ACharacter>(Result.GetActor());
-		if (Character && Character->GetController())
-		{
-			TeamAllyCount++;
-		}
-	}
-}
-
-void AOBCapturePoint::UpdateCaptureProgress()
-{
-	if (TeamAllyCount == 0 && TeamEnemyCount == 0)
-	{
-		CurrentState = ECapturePointState::Neutral;
-		ResetCaptureProgress();
-		return;
-	}
-
-	if (TeamEnemyCount > 0)
-	{
-		CurrentState = ECapturePointState::Contested;
-		return;
-	}
-
-	if (TeamAllyCount > 0)
-	{
-		CurrentState = ECapturePointState::Capturing;
-		float ProgressIncrement = (1.0f / CaptureTime) * (TeamAllyCount > 1 ? 1.2f : 1.0f);
-		CurrentCaptureProgress += ProgressIncrement;
-
-		if (CurrentCaptureProgress >= 1.0f)
-		{
-			CurrentCaptureProgress = 1.0f;
-			CurrentState = ECapturePointState::Captured;
-			OnCaptureStateChanged.Broadcast(CurrentState, nullptr);
-		}
-	}
-}
-
-void AOBCapturePoint::ResetCaptureProgress()
-{
-	CurrentCaptureProgress = 0.0f;
-}
-
-void AOBCapturePoint::Server_SetCaptureState_Implementation(ECapturePointState NewState, AController* CapturingController)
-{
-	CurrentState = NewState;
-	OnCaptureStateChanged.Broadcast(NewState, CapturingController);
-}
-
-bool AOBCapturePoint::Server_SetCaptureState_Validate(ECapturePointState NewState, AController* CapturingController)
-{
-	return true;
+	Super::EndPlay(EndPlayReason);
 }

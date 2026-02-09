@@ -2,9 +2,9 @@
 #include "Components/GameStateComponent.h"
 #include "OBDeviceComponent.generated.h"
 
-class AActor;
+class AOBDeviceBase;
 
-UCLASS(Abstract)
+UCLASS(MinimalAPI, Blueprintable, Meta = (BlueprintSpawnableComponent))
 class UOBDeviceComponent : public UGameStateComponent
 {
 	GENERATED_BODY()
@@ -19,10 +19,22 @@ public:
 public:
 
 	UPROPERTY(BlueprintReadOnly, Transient, Category = "Observer|Device")
-	TArray<AActor*> Devices;
-	
+	TArray<AOBDeviceBase*> Devices;
+
 public:
 
-	UPROPERTY(BlueprintReadOnly, Transient, Category = "Observer|Device")
-	TArray<AActor*> ActiveCapturePoints;
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	AOBDeviceBase* GetDeviceByNumber(int32 DeviceIndex) const { return Devices.IsValidIndex(DeviceIndex) ? Devices[DeviceIndex] : nullptr; }
+
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	AOBDeviceBase* GetDeviceByName(FName InDeviceName) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	void OnUpdateProgress(int32 InCurrentProgress);
+
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	void OnUpdateSegment(int32 InCurrentSegment);
+
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	void OnUpdateStatus(bool InNewStatus);
 };

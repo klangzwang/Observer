@@ -54,7 +54,8 @@ namespace UnrealBuildTool.Rules
 				"DeveloperSettings",
 				"ObserverFramework",
 				"ObserverInterfaces",
-				"ObserverInput"
+				"ObserverInput",
+				"MoviePlayer"
 			}
 			);
 				
