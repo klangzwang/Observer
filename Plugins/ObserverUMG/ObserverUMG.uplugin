@@ -23,14 +23,6 @@
 			"PlatformAllowList": [
 				"Win64"
 			]
-		},
-		{
-			"Name": "ObserverMovie",
-			"Type": "Runtime",
-			"LoadingPhase": "PreLoadingScreen",
-			"PlatformAllowList": [
-				"Win64"
-			]
 		}
 	],
 	"Plugins": [

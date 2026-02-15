@@ -1,4 +1,5 @@
 #pragma once
+#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "OBHealthComponent.generated.h"
 
@@ -6,8 +7,8 @@ class UOBHealthComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOBHealthChanged, UOBHealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
 
-UCLASS(MinimalAPI, Blueprintable, Meta=(BlueprintSpawnableComponent))
-class UOBHealthComponent : public UActorComponent
+UCLASS(Blueprintable, Meta=(BlueprintSpawnableComponent))
+class OBSERVERFRAMEWORK_API UOBHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 

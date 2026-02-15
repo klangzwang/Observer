@@ -436,6 +436,8 @@ void UOBHeroComponent::MovementRouting(const FInputActionInstance& Instance)
 				//
 				if (ActionName == "IA_Attack")
 				{
+					GetCharacter()->DoAttackTrace("Pelvis");
+
 					/*
 					GetCharacter()->PlayAnimMontage(
 						GetCharacter()->GetWeapon()->NeedsReload() ?

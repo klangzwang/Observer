@@ -38,15 +38,17 @@ void AOBExtractPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-//
-// Debug Messages
-//
+	//
+	// Debug Messages
+	//
+	/*
 	GEngine->AddOnScreenDebugMessage(00, 0.1f, FColor::White, FString::Printf(TEXT("Progress: %f"), CurrentProgress));
 	GEngine->AddOnScreenDebugMessage(11, 0.1f, FColor::Orange, FString::Printf(TEXT("Segment: %i"), CurrentSegment));
 	GEngine->AddOnScreenDebugMessage(22, 0.1f, FColor::Yellow, FString::Printf(TEXT("CharactersInCapsule: %i"), CharactersInCapsule.Num()));
 	GEngine->AddOnScreenDebugMessage(33, 0.1f, FColor::Emerald, FString::Printf(TEXT("PlayersInCapsule: %i"), CapsulePlayers.Num()));
 	GEngine->AddOnScreenDebugMessage(44, 0.1f, FColor::Emerald, FString::Printf(TEXT("EnemysInCapsule: %i"), CapsuleEnemys.Num()));
 	GEngine->AddOnScreenDebugMessage(55, 0.1f, FColor::Green, bIsActive ? FString::Printf(TEXT("IsActive: true")) : FString::Printf(TEXT("IsActive: false")));
+	*/
 
 	if (CharactersInCapsule.Num() == 0)
 	{

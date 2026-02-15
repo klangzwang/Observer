@@ -5,3 +5,10 @@
 UOBAssetManager::UOBAssetManager()
 {
 }
+
+TSharedPtr<FStreamableHandle> UOBAssetManager::LoadPrimaryAsset(const FPrimaryAssetId& AssetToLoad, const TArray<FName>& LoadBundles, FAssetManagerLoadParams&& LoadParams, UE::FSourceLocation Location)
+{
+	GEngine->AddOnScreenDebugMessage(123, 4.f, FColor::White, FString::Printf(TEXT("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")));
+
+    return Super::LoadPrimaryAsset(AssetToLoad, LoadBundles, MoveTemp(LoadParams), Location);
+}

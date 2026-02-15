@@ -10,4 +10,10 @@ class OBSERVERFRAMEWORK_API UOBAssetManager : public UAssetManager
 public:
 
 	UOBAssetManager();
+
+	virtual TSharedPtr<FStreamableHandle> LoadPrimaryAsset(
+		const FPrimaryAssetId& AssetToLoad,
+		const TArray<FName>& LoadBundles,
+		FAssetManagerLoadParams&& LoadParams,
+		UE::FSourceLocation Location = UE::FSourceLocation::Current()) override;
 };

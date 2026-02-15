@@ -251,24 +251,6 @@ void AOBCharacter::StopAllAnimMontages(float blendout)
 		GetAnimInstance()->Montage_Stop(blendout);
 }
 
-void AOBCharacter::DoAttackTrace(FName DamageSourceBone)
-{
-	/*
-	IOBDamageable* Damageable = Cast<IOBDamageable>(CurrentHit.GetActor());
-	if (Damageable)
-	{
-		// knock upwards and away from the impact normal
-		const FVector Impulse = (CurrentHit.ImpactNormal * -MeleeKnockbackImpulse) + (FVector::UpVector * MeleeLaunchImpulse);
-
-		// pass the damage event to the actor
-		Damageable->ApplyDamage(MeleeDamage, this, CurrentHit.ImpactPoint, Impulse);
-
-		// call the BP handler to play effects, etc.
-		K2_OnDealtDamage(MeleeDamage, CurrentHit.ImpactPoint);
-	}
-	*/
-}
-
 /*
 void AOBCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -334,9 +316,55 @@ void AOBCharacter::ShowOutlines(bool bActive)
 }
 */
 
+void AOBCharacter::DoAttackTrace(FName DamageSourceBone)
+{
+	// sweep for objects in front of the character to be hit by the attack
+	TArray<FHitResult> OutHits;
+
+	// start at the provided socket location, sweep forward
+	const FVector TraceStart = GetMesh()->GetSocketLocation(DamageSourceBone);
+	const FVector TraceEnd = TraceStart + (GetActorForwardVector() * MeleeTraceDistance);
+
+	// check for pawn and world dynamic collision object types
+	FCollisionObjectQueryParams ObjectParams;
+	ObjectParams.AddObjectTypesToQuery(ECC_Pawn);
+	ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+
+	// use a sphere shape for the sweep
+	FCollisionShape CollisionShape;
+	CollisionShape.SetSphere(MeleeTraceRadius);
+
+	// ignore self
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Green, false);
+	DrawDebugSphere(GetWorld(), TraceEnd, 16, 10, FColor::Green, false);
+
+	if (GetWorld()->SweepMultiByObjectType(OutHits, TraceStart, TraceEnd, FQuat::Identity, ObjectParams, CollisionShape, QueryParams))
+	{
+		// iterate over each object hit
+		for (const FHitResult& CurrentHit : OutHits)
+		{
+			// check if we've hit a damageable actor
+			IOBDamageable* Damageable = Cast<IOBDamageable>(CurrentHit.GetActor());
+
+			if (Damageable)
+			{
+				// knock upwards and away from the impact normal
+				const FVector Impulse = (CurrentHit.ImpactNormal * -MeleeKnockbackImpulse) + (FVector::UpVector * MeleeLaunchImpulse);
+
+				// pass the damage event to the actor
+				Damageable->ApplyDamage(MeleeDamage, this, CurrentHit.ImpactPoint, Impulse);
+
+				K2_OnDealtDamage(MeleeDamage, CurrentHit.ImpactPoint);
+			}
+		}
+	}
+}
+
 void AOBCharacter::ApplyDamage(float Damage, AActor* DamageCauser, const FVector& DamageLocation, const FVector& DamageImpulse)
 {
-	/*
 	GetCharacterMovement()->AddImpulse(DamageImpulse, true);
 
 	if (GetMesh()->IsSimulatingPhysics())
@@ -363,16 +391,14 @@ void AOBCharacter::ApplyDamage(float Damage, AActor* DamageCauser, const FVector
 
 	if (CurrentHP <= 0.0f)
 	{
-		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
-		K2_OnDeathStarted();
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
+		//K2_OnDeathStarted();
 		return;
 	}
-	*/
 }
 
 float AOBCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	/*
 	float CurrentHP = HealthComponent->GetHealth();
 
 	if (CurrentHP <= 0.0f)
@@ -386,9 +412,9 @@ float AOBCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 		DisableMovementAndCollision();
 		GetMesh()->SetSimulatePhysics(true);
 
-		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
 
-		K2_OnDeathStarted();
+		//K2_OnDeathStarted();
 	}
 	else
 	{
@@ -396,15 +422,6 @@ float AOBCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 		GetMesh()->SetBodySimulatePhysics("pelvis", false);
 	}
 	return Damage;
-	*/
-
-	return Damage;
-}
-
-void AOBCharacter::AttachProjectile(AActor* DamageCauser, const FVector& DamageLocation, const FVector& DamageImpulse)
-{
-	//	if(GetWeapon()->WeaponDef.CanAttachProjectile)
-	//		DamageCauser->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
 }
 
 void AOBCharacter::FellOutOfWorld(const class UDamageType& dmgType)

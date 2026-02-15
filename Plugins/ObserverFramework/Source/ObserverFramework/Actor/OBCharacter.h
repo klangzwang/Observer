@@ -1,30 +1,21 @@
 #pragma once
 #include "IOBDamageable.h"
 #include "IOBAttacker.h"
-#include "IOBEntityInterface.h"
+//#include "IOBEntityInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "OBAnimInstance.h"
 #include "OBTypes.h"
 #include "GenericTeamAgentInterface.h"
-/*
-#include "Engine/CollisionProfile.h"
-#include "Engine/World.h"
-#include "Engine/EngineTypes.h"
-#include "DrawDebugHelpers.h"
-#include "CollisionQueryParams.h"
-*/
 #include "OBCharacter.generated.h"
 
 class UOBHealthComponent;
 class UOBSkeletalMeshComponent;
 class AOBPlayerController;
 class AOBPlayerState;
-//struct FCollisionQueryParams;
-//struct FHitResult;
 
 UCLASS(config = Game)
-class AOBCharacter : public ACharacter, public IOBAttacker, public IOBDamageable, public IGenericTeamAgentInterface, public IOBEntityInterface
+class AOBCharacter : public ACharacter, public IOBAttacker, public IOBDamageable, public IGenericTeamAgentInterface //, public IOBEntityInterface
 {
 	GENERATED_BODY()
 	
@@ -132,12 +123,39 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Observer|Damage")
 	virtual void ApplyDamage(float Damage, AActor* DamageCauser, const FVector& DamageLocation, const FVector& DamageImpulse) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Observer|Damage")
-	virtual void AttachProjectile(AActor* DamageCauser, const FVector& DamageLocation, const FVector& DamageImpulse) override;
-
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void DoAttackTrace(FName DamageSourceBone) override;
+
+protected:
+
+	/** Distance ahead of the character that melee attack sphere collision traces will extend */
+	UPROPERTY(EditAnywhere, Category = "Observer|Trace", meta = (ClampMin = 0, ClampMax = 500, Units = "cm"))
+	float MeleeTraceDistance = 75.0f;
+
+	/** Radius of the sphere trace for melee attacks */
+	UPROPERTY(EditAnywhere, Category = "Observer|Trace", meta = (ClampMin = 0, ClampMax = 200, Units = "cm"))
+	float MeleeTraceRadius = 75.0f;
+
+	/** Amount of damage a melee attack will deal */
+	UPROPERTY(EditAnywhere, Category = "Observer|Damage", meta = (ClampMin = 0, ClampMax = 100))
+	float MeleeDamage = 1.0f;
+
+	/** Amount of knockback impulse a melee attack will apply */
+	UPROPERTY(EditAnywhere, Category = "Observer|Damage", meta = (ClampMin = 0, ClampMax = 1000, Units = "cm/s"))
+	float MeleeKnockbackImpulse = 250.0f;
+
+	/** Amount of upwards impulse a melee attack will apply */
+	UPROPERTY(EditAnywhere, Category = "Observer|Damage", meta = (ClampMin = 0, ClampMax = 1000, Units = "cm/s"))
+	float MeleeLaunchImpulse = 300.0f;
+
+protected:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Observer|Damage", meta = (DisplayName = "OnDealtDamage", ScriptName = "OnDealtDamage"))
+	void K2_OnDealtDamage(float Damage, const FVector & ImpactPoint);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Observer|Damage", meta = (DisplayName = "OnReceivedDamage", ScriptName = "OnReceivedDamage"))
+	void K2_OnReceivedDamage(float Damage, const FVector& ImpactPoint, const FVector& DamageDirection);
 
 public:
 

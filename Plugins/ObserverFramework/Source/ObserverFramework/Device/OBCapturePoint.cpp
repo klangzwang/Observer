@@ -34,6 +34,7 @@ void AOBCapturePoint::Tick(float DeltaTime)
 	//
 	// Debug Messages
 	//
+	/*
 	GEngine->AddOnScreenDebugMessage(00, 0.1f, FColor::White, FString::Printf(TEXT("Progress: %f"), CurrentProgress));
 	GEngine->AddOnScreenDebugMessage(11, 0.1f, FColor::Yellow, FString::Printf(TEXT("CharactersInCapsule: %i"), CharactersInCapsule.Num()));
 	GEngine->AddOnScreenDebugMessage(22, 0.1f, FColor::Emerald, FString::Printf(TEXT("PlayersInCapsule: %i"), CapsulePlayers.Num()));
@@ -41,6 +42,7 @@ void AOBCapturePoint::Tick(float DeltaTime)
 	GEngine->AddOnScreenDebugMessage(44, 0.1f, FColor::Green, bIsCapturedByPlayer ? FString::Printf(TEXT("IsCapturedByPlayer: true")) : FString::Printf(TEXT("IsCapturedByPlayer: false")));
 	GEngine->AddOnScreenDebugMessage(55, 0.1f, FColor::Green, bIsCapturedByEnemy ? FString::Printf(TEXT("IsCapturedByEnemy: true")) : FString::Printf(TEXT("IsCapturedByEnemy: false")));
 	GEngine->AddOnScreenDebugMessage(66, 0.1f, FColor::Yellow, FString::Printf(TEXT("CollisionProfileName: %s"), *Capsule->GetCollisionProfileName().ToString()));
+	*/
 
 	//
 	//

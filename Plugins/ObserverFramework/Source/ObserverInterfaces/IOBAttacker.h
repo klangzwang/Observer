@@ -3,8 +3,6 @@
 #include "UObject/Interface.h"
 #include "IOBAttacker.generated.h"
 
-struct FHitResult;
-
 UINTERFACE(MinimalAPI, NotBlueprintable)
 class UOBAttacker : public UInterface
 {
