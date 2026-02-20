@@ -22,8 +22,6 @@ AOBExtractPoint::AOBExtractPoint(const FObjectInitializer& ObjectInitializer)
 	SecondsEachSegment = 20;
 	SecondsSegmentFall = 40;
 
-	bHasProgress = true;
-
 	DeviceName = "Extract";
 }
 
@@ -32,6 +30,7 @@ void AOBExtractPoint::BeginPlay()
 	Super::BeginPlay();
 
 	RegisterDevice(this);
+	SetActorTickEnabled(true);
 }
 
 void AOBExtractPoint::Tick(float DeltaTime)
@@ -52,17 +51,10 @@ void AOBExtractPoint::Tick(float DeltaTime)
 
 	if (CharactersInCapsule.Num() == 0)
 	{
-		bIsActive = false;
 		if (CurrentProgress > 0.f)
 			CurrentProgress = FMath::Max(0.f, CurrentProgress - (DeltaTime / SecondsSegmentFall));
 	}
 	else
-	{
-		if(!bIsActive)
-			bIsActive = true;
-	}
-
-	if (bIsActive)
 	{
 		if (CapsuleEnemys.Num() == 0 && CapsulePlayers.Num() > 0)
 			CurrentProgress = FMath::Min(1.f, CurrentProgress + (DeltaTime / SecondsEachSegment));
@@ -80,7 +72,6 @@ void AOBExtractPoint::Tick(float DeltaTime)
 		else if (CurrentSegment == 3)
 		{
 			SetActorTickEnabled(false);
-			bIsActive = false;
 
 			Capsule->SetLineThickness(0.25f);
 			Capsule->ShapeColor = FColor::Red;

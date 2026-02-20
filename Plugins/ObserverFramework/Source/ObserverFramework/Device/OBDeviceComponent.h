@@ -24,6 +24,14 @@ public:
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	AOBDeviceBase* GetCaptureDeviceByNumber(int32 DeviceIndex) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	AOBDeviceBase* GetAnyCapturedDeviceActive() const;
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
 	AOBDeviceBase* GetDeviceByNumber(int32 DeviceIndex) const { return Devices.IsValidIndex(DeviceIndex) ? Devices[DeviceIndex] : nullptr; }
 
 	UFUNCTION(BlueprintCallable, Category = "Observer|Device")

@@ -1,5 +1,6 @@
 #include "OBPlayerController.h"
 #include "OBLocalPlayer.h"
+#include "OBCharacter.h"
 #include "Components/ControllerComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
 

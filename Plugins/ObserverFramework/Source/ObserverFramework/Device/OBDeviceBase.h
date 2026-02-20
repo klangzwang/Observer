@@ -38,13 +38,12 @@ protected:
 	FName DeviceName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Observer|Device")
-	bool bHasProgress;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Observer|Device")
 	float CurrentProgress;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Observer|Device")
-	bool bIsActive;
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Observer|Device")
+	FName GetDeviceName() const { return DeviceName; }
 
 //
 // Collision

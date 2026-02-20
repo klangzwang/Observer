@@ -2,6 +2,8 @@
 #include "OBDeviceBase.h"
 #include "OBCapturePoint.generated.h"
 
+class APlayerStart;
+
 UCLASS()
 class AOBCapturePoint : public AOBDeviceBase
 {
@@ -32,4 +34,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Observer|Device")
 	bool bIsCapturedByEnemy;
+
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Observer|Device")
+	APlayerStart* RespawnPlayerStart;
 };

@@ -1,5 +1,6 @@
 #include "OBCapturePoint.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/PlayerStart.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(OBCapturePoint)
 
@@ -15,8 +16,6 @@ AOBCapturePoint::AOBCapturePoint(const FObjectInitializer& ObjectInitializer)
 	bIsCapturedByPlayer = false;
 	bIsCapturedByEnemy = true;
 
-	bHasProgress = true;
-
 	DeviceName = "Capture";
 }
 
@@ -25,6 +24,22 @@ void AOBCapturePoint::BeginPlay()
 	Super::BeginPlay();
 
 	RegisterDevice(this);
+	SetActorTickEnabled(true);
+
+	if (GetWorld())
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, 100.f);
+		FRotator SpawnRotation = GetActorRotation();
+
+		RespawnPlayerStart = GetWorld()->SpawnActor<APlayerStart>(APlayerStart::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		
+		RespawnPlayerStart->SetActorHiddenInGame(false);
+	}
 }
 
 void AOBCapturePoint::Tick(float DeltaTime)
@@ -50,23 +65,32 @@ void AOBCapturePoint::Tick(float DeltaTime)
 	bIsCapturedByPlayer = CurrentProgress >= 1.f ? true : false;
 	bIsCapturedByEnemy = CurrentProgress <= 0.f ? true : false;
 
+	if (!RespawnPlayerStart)
+		return;
+
 	if (bIsCapturedByPlayer)
 	{
 		Capsule->SetLineThickness(2.f);
 		Capsule->ShapeColor = FColor::Green;
 		Capsule->SetCollisionProfileName(TEXT("OverlapEnemy"));
+		RespawnPlayerStart->PlayerStartTag = FName("RespawnActive");
+		DeviceName = "Captured";
 	}
 	else if (bIsCapturedByEnemy)
 	{
 		Capsule->SetLineThickness(2.f);
 		Capsule->ShapeColor = FColor::Red;
 		Capsule->SetCollisionProfileName(TEXT("OverlapPlayer"));
+		RespawnPlayerStart->PlayerStartTag = FName("");
+		DeviceName = "Capture";
 	}
 	else
 	{
 		Capsule->SetLineThickness(0.25f);
 		Capsule->ShapeColor = FColor::Yellow;
 		Capsule->SetCollisionProfileName(TEXT("OverlapPlayerAndEnemy"));
+		RespawnPlayerStart->PlayerStartTag = FName("");
+		DeviceName = "Capture";
 	}
 
 	//

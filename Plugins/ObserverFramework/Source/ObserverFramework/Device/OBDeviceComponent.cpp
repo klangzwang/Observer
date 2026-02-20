@@ -11,6 +11,30 @@ UOBDeviceComponent::UOBDeviceComponent(const FObjectInitializer& ObjectInitializ
 	//->OnUpdateStatusDelegate.AddDynamic(this, &UOBDeviceComponent::OnUpdateStatus);
 }
 
+AOBDeviceBase* UOBDeviceComponent::GetCaptureDeviceByNumber(int32 DeviceIndex) const
+{
+	for (AOBDeviceBase* Device : Devices)
+	{
+		if (Device && Device->GetDeviceName() == FName(TEXT("Capture")) && Devices.IndexOfByKey(Device) == DeviceIndex)
+		{
+			return Device;
+		}
+	}
+	return nullptr;
+}
+
+AOBDeviceBase* UOBDeviceComponent::GetAnyCapturedDeviceActive() const
+{
+	for (AOBDeviceBase* Device : Devices)
+	{
+		if (Device && Device->GetDeviceName() == FName(TEXT("Captured")))
+		{
+			return Device;
+		}
+	}
+	return nullptr;
+}
+
 AOBDeviceBase* UOBDeviceComponent::GetDeviceByName(FName InDeviceName) const
 {
 	for (AOBDeviceBase* Device : Devices)

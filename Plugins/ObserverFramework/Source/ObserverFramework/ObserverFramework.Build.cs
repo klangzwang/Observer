@@ -35,6 +35,7 @@ namespace UnrealBuildTool.Rules
 				"Engine",
 				"PhysicsCore",
 				"GameplayTags",
+				"GameplayAbilities",
 				"AIModule",
 				"Niagara",
 				"MovieScene",
@@ -63,6 +64,7 @@ namespace UnrealBuildTool.Rules
 				"AudioModulation",
 				"ObserverInterfaces",
 				"ObserverInput",
+				"ObserverAbility",
 				"MoviePlayer"
 			}
 			);

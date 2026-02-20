@@ -6,6 +6,7 @@
 #include "OBCharacterMovementComponent.h"
 #include "OBSkeletalMeshComponent.h"
 #include "OBStealth.h"
+#include "OBAbilitySystemComponent.h"
 #include "IOBInteractable.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
@@ -15,6 +16,7 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/DamageEvents.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(OBCharacter)
 
@@ -39,8 +41,6 @@ AOBCharacter::AOBCharacter(const FObjectInitializer& ObjectInitializer)
 	UOBSkeletalMeshComponent* OBMesh = CastChecked<UOBSkeletalMeshComponent>(GetMesh());
 	OBMesh->SetRelativeRotation(FRotator(0.0f, -90.f, 0.0f));
 	OBMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -90.f));
-	//OBMesh->OnComponentBeginOverlap.AddDynamic(this, &AOBCharacter::OnOverlapBegin);
-	//OBMesh->OnComponentEndOverlap.AddDynamic(this, &AOBCharacter::OnOverlapEnd);
 
 	UOBCharacterMovementComponent* OBMoveComp = CastChecked<UOBCharacterMovementComponent>(GetCharacterMovement());
 	OBMoveComp->bAllowPhysicsRotationDuringAnimRootMotion = false;
@@ -181,6 +181,16 @@ void AOBCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	//GetWorld()->GetTimerManager().ClearTimer(BeginTimerHandle);
 }
 
+UAbilitySystemComponent* AOBCharacter::GetAbilitySystemComponent() const
+{
+	UOBAbilitySystemComponent* ObserverASC = FindComponentByClass<UOBAbilitySystemComponent>();
+	if (ensureMsgf(ObserverASC, TEXT("Unexpected Ability System Component class!")))
+	{
+		return ObserverASC;
+	}
+	return nullptr;
+}
+
 AOBPlayerController* AOBCharacter::GetOBPlayerController() const
 {
 	return CastChecked<AOBPlayerController>(GetController(), ECastCheckedType::NullAllowed);
@@ -251,26 +261,6 @@ void AOBCharacter::StopAllAnimMontages(float blendout)
 		GetAnimInstance()->Montage_Stop(blendout);
 }
 
-/*
-void AOBCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (Cast<AOBStealth>(OtherActor))
-	{
-		Tags.Empty();
-		Tags.Add(FName("CanBeHidden"));
-	}
-}
-
-void AOBCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (Cast<AOBStealth>(OtherActor))
-	{
-		Tags.Empty();
-		Tags.Add(FName("Player"));
-	}
-}
-*/
-
 void AOBCharacter::SetIsDetectable(bool bIsDetectable)
 {
 	if (AIPerceptionStimuliSource)
@@ -292,176 +282,6 @@ void AOBCharacter::SetIsVisible(bool bIsVisible)
 			AIPerceptionStimuliSource->UnregisterFromSense(UAISense_Sight::StaticClass());
 		AIPerceptionStimuliSource->RegisterWithPerceptionSystem();
 	}
-}
-
-/*
-void AOBCharacter::ShowOutlines(bool bActive)
-{
-	TArray<USceneComponent*> AllComps;
-	GetMesh()->GetChildrenComponents(true, AllComps);
-
-	if (AllComps.Num() == 0)
-		return;
-
-	for (USceneComponent* Comp : AllComps)
-	{
-		if (Comp->ComponentTags.Num() > 0)
-		{
-			if (Comp->ComponentTags[0] == "Outline")
-			{
-				Cast<UPrimitiveComponent>(Comp)->SetRenderCustomDepth(bActive);
-			}
-		}
-	}
-}
-*/
-
-void AOBCharacter::DoAttackTrace(FName DamageSourceBone)
-{
-	// sweep for objects in front of the character to be hit by the attack
-	TArray<FHitResult> OutHits;
-
-	// start at the provided socket location, sweep forward
-	const FVector TraceStart = GetMesh()->GetSocketLocation(DamageSourceBone);
-	const FVector TraceEnd = TraceStart + (GetActorForwardVector() * MeleeTraceDistance);
-
-	// check for pawn and world dynamic collision object types
-	FCollisionObjectQueryParams ObjectParams;
-	ObjectParams.AddObjectTypesToQuery(ECC_Pawn);
-	ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-
-	// use a sphere shape for the sweep
-	FCollisionShape CollisionShape;
-	CollisionShape.SetSphere(MeleeTraceRadius);
-
-	// ignore self
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Green, false);
-	DrawDebugSphere(GetWorld(), TraceEnd, 16, 10, FColor::Green, false);
-
-	if (GetWorld()->SweepMultiByObjectType(OutHits, TraceStart, TraceEnd, FQuat::Identity, ObjectParams, CollisionShape, QueryParams))
-	{
-		// iterate over each object hit
-		for (const FHitResult& CurrentHit : OutHits)
-		{
-			// check if we've hit a damageable actor
-			IOBDamageable* Damageable = Cast<IOBDamageable>(CurrentHit.GetActor());
-
-			if (Damageable)
-			{
-				// knock upwards and away from the impact normal
-				const FVector Impulse = (CurrentHit.ImpactNormal * -MeleeKnockbackImpulse) + (FVector::UpVector * MeleeLaunchImpulse);
-
-				// pass the damage event to the actor
-				Damageable->ApplyDamage(MeleeDamage, this, CurrentHit.ImpactPoint, Impulse);
-
-				K2_OnDealtDamage(MeleeDamage, CurrentHit.ImpactPoint);
-			}
-		}
-	}
-}
-
-void AOBCharacter::ApplyDamage(float Damage, AActor* DamageCauser, const FVector& DamageLocation, const FVector& DamageImpulse)
-{
-	GetCharacterMovement()->AddImpulse(DamageImpulse, true);
-
-	if (GetMesh()->IsSimulatingPhysics())
-		GetMesh()->AddImpulseAtLocation(DamageImpulse * GetMesh()->GetMass(), DamageLocation);
-
-	K2_OnReceivedDamage(Damage, DamageLocation, DamageImpulse.GetSafeNormal());
-
-	if (UOBHeroComponent* Hero = FindComponentByClass<UOBHeroComponent>())
-	{
-		if (ensure(Hero))
-		{
-			if (Hero->GetCharacterClass().HitSound)
-			{
-				//UGameplayStatics::SpawnSoundAttached(Hero->GetCharacterClass().HitSound, GetMesh(), "none", FVector::ZeroVector, FRotator::ZeroRotator,
-				//	EAttachLocation::SnapToTarget, false, 1.f, 1.f, 0.0f, nullptr, nullptr, true);
-			}
-		}
-	}
-
-	float CurrentHP = HealthComponent->GetHealth();
-
-	CurrentHP -= Damage;
-	HealthComponent->SetHealth(CurrentHP);
-
-	if (CurrentHP <= 0.0f)
-	{
-		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
-		//K2_OnDeathStarted();
-		return;
-	}
-}
-
-float AOBCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float CurrentHP = HealthComponent->GetHealth();
-
-	if (CurrentHP <= 0.0f)
-		return 0.0f;
-
-	CurrentHP -= Damage;
-	HealthComponent->SetHealth(CurrentHP);
-
-	if (CurrentHP <= 0.0f)
-	{
-		DisableMovementAndCollision();
-		GetMesh()->SetSimulatePhysics(true);
-
-		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
-
-		//K2_OnDeathStarted();
-	}
-	else
-	{
-		GetMesh()->SetPhysicsBlendWeight(0.5f);
-		GetMesh()->SetBodySimulatePhysics("pelvis", false);
-	}
-	return Damage;
-}
-
-void AOBCharacter::FellOutOfWorld(const class UDamageType& dmgType)
-{
-	HealthComponent->DamageSelfDestruct(true);
-}
-
-void AOBCharacter::DisableMovementAndCollision()
-{
-	if (GetController())
-	{
-		GetController()->SetIgnoreMoveInput(true);
-	}
-
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	check(CapsuleComp);
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-
-	UOBCharacterMovementComponent* OBMoveComp = CastChecked<UOBCharacterMovementComponent>(GetCharacterMovement());
-	OBMoveComp->StopMovementImmediately();
-	OBMoveComp->DisableMovement();
-}
-
-void AOBCharacter::UninitAndDestroy()
-{
-	/*
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		DetachFromControllerPendingDestroy();
-		SetLifeSpan(0.1f);
-	}
-
-	SetActorHiddenInGame(true);
-
-	if (AOBGameMode* GameMode = Cast<AOBGameMode>(UGameplayStatics::GetGameMode(this)))
-		GameMode->RestartPlayer(Controller);
-
-	K2_OnDeathFinished();
-	*/
 }
 
 void AOBCharacter::AssignTeam(ETeam team)
@@ -544,4 +364,205 @@ void AOBCharacter::LineTrace(FHitResult& OutHitResult, const UWorld* World, cons
 	{
 		OutHitResult = HitResult;
 	}
+}
+
+//
+// Attack and Damage
+//
+void AOBCharacter::DoAttackTrace(FName DamageSourceBone)
+{
+	// sweep for objects in front of the character to be hit by the attack
+	TArray<FHitResult> OutHits;
+
+	// start at the provided socket location, sweep forward
+	const FVector TraceStart = GetMesh()->GetSocketLocation(DamageSourceBone);
+	const FVector TraceEnd = TraceStart + (GetActorForwardVector() * MeleeTraceDistance);
+
+	// check for pawn and world dynamic collision object types
+	FCollisionObjectQueryParams ObjectParams;
+	ObjectParams.AddObjectTypesToQuery(ECC_Pawn);
+	ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+
+	// use a sphere shape for the sweep
+	FCollisionShape CollisionShape;
+	CollisionShape.SetSphere(MeleeTraceRadius);
+
+	// ignore self
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	if (GetWorld()->SweepMultiByObjectType(OutHits, TraceStart, TraceEnd, FQuat::Identity, ObjectParams, CollisionShape, QueryParams))
+	{
+		// iterate over each object hit
+		for (const FHitResult& CurrentHit : OutHits)
+		{
+			// check if we've hit a damageable actor
+			IOBDamageable* Damageable = Cast<IOBDamageable>(CurrentHit.GetActor());
+
+			if (Damageable)
+			{
+				// knock upwards and away from the impact normal
+				const FVector Impulse = (CurrentHit.ImpactNormal * -MeleeKnockbackImpulse) + (FVector::UpVector * MeleeLaunchImpulse);
+
+				// pass the damage event to the actor
+				Damageable->ApplyDamage(MeleeDamage, this, CurrentHit.ImpactPoint, Impulse);
+
+				// call the BP handler to play effects, etc.
+				K2_OnDealtDamage(MeleeDamage, CurrentHit.ImpactPoint);
+			}
+		}
+	}
+}
+
+void AOBCharacter::ApplyDamage(float Damage, AActor* DamageCauser, const FVector& DamageLocation, const FVector& DamageImpulse)
+{
+	FDamageEvent DamageEvent;
+	const float ActualDamage = TakeDamage(Damage, DamageEvent, nullptr, DamageCauser);
+
+	/*
+	// only process knockback and effects if we received nonzero damage
+	if (ActualDamage > 0.0f)
+	{
+		// apply the knockback impulse
+		GetCharacterMovement()->AddImpulse(DamageImpulse, true);
+
+		// is the character ragdolling?
+		if (GetMesh()->IsSimulatingPhysics())
+		{
+			// apply an impulse to the ragdoll
+			GetMesh()->AddImpulseAtLocation(DamageImpulse * GetMesh()->GetMass(), DamageLocation);
+		}
+
+		// pass control to BP to play effects, etc.
+		K2_OnReceivedDamage(ActualDamage, DamageLocation, DamageImpulse.GetSafeNormal());
+	}
+	*/
+}
+
+float AOBCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float CurrentHP = HealthComponent->GetHealth();
+
+	if (CurrentHP <= 0.0f)
+		return 0.0f;
+
+	CurrentHP -= Damage;
+	HealthComponent->SetHealth(CurrentHP);
+
+	if (CurrentHP <= 0.0f)
+		HandleDeath();
+	else
+	{
+		// update the life bar
+		// LifeBarWidget->SetLifePercentage(CurrentHP / MaxHP);
+
+		// enable partial ragdoll physics, but keep the pelvis vertical
+		// GetMesh()->SetPhysicsBlendWeight(0.5f);
+		// GetMesh()->SetBodySimulatePhysics("Pelvis", false);
+	}
+
+	return Damage;
+}
+
+//
+// Death and Respawning
+//
+void AOBCharacter::HandleDeath()
+{
+	K2_OnDeathStarted();
+
+	DisableMovementAndCollision();
+	GetMesh()->SetSimulatePhysics(true);
+
+	// hide the life bar
+	//LifeBar->SetHiddenInGame(true);
+
+	// pull back the camera
+	// GetCameraBoom()->TargetArmLength = DeathCameraDistance;
+
+	GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
+}
+
+/*
+void AOBCharacter::ShowOutlines(bool bActive)
+{
+	TArray<USceneComponent*> AllComps;
+	GetMesh()->GetChildrenComponents(true, AllComps);
+
+	if (AllComps.Num() == 0)
+		return;
+
+	for (USceneComponent* Comp : AllComps)
+	{
+		if (Comp->ComponentTags.Num() > 0)
+		{
+			if (Comp->ComponentTags[0] == "Outline")
+			{
+				Cast<UPrimitiveComponent>(Comp)->SetRenderCustomDepth(bActive);
+			}
+		}
+	}
+}
+*/
+
+/*
+float AOBCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float CurrentHP = HealthComponent->GetHealth();
+
+	if (CurrentHP <= 0.0f)
+		return 0.0f;
+
+	CurrentHP -= Damage;
+	HealthComponent->SetHealth(CurrentHP);
+
+	if (CurrentHP <= 0.0f)
+	{
+		DisableMovementAndCollision();
+		GetMesh()->SetSimulatePhysics(true);
+
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AOBCharacter::UninitAndDestroy, 3.f, false);
+
+		//K2_OnDeathStarted();
+	}
+	else
+	{
+		GetMesh()->SetPhysicsBlendWeight(0.5f);
+		GetMesh()->SetBodySimulatePhysics("pelvis", false);
+	}
+	return Damage;
+}
+*/
+
+void AOBCharacter::FellOutOfWorld(const class UDamageType& dmgType)
+{
+	HealthComponent->DamageSelfDestruct(true);
+}
+
+void AOBCharacter::DisableMovementAndCollision()
+{
+	if (GetController())
+		GetController()->SetIgnoreMoveInput(true);
+
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	check(CapsuleComp);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	UOBCharacterMovementComponent* OBMoveComp = CastChecked<UOBCharacterMovementComponent>(GetCharacterMovement());
+	OBMoveComp->StopMovementImmediately();
+	OBMoveComp->DisableMovement();
+}
+
+void AOBCharacter::UninitAndDestroy()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(0.1f);
+	}
+
+	SetActorHiddenInGame(true);
+	K2_OnDeathFinished();
+	Destroy();
 }

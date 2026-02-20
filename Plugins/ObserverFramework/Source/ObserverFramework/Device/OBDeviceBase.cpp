@@ -18,10 +18,7 @@ AOBDeviceBase::AOBDeviceBase(const FObjectInitializer& ObjectInitializer)
 	Capsule->ShapeColor = FColor::Magenta;
 	Capsule->SetupAttachment(RootComponent);
 
-	bHasProgress = false;
 	CurrentProgress = 0.f;
-
-	bIsActive = false;
 
 	DeviceName = "";
 }
@@ -52,8 +49,6 @@ void AOBDeviceBase::RegisterDevice(AOBDeviceBase* DeviceActor)
 void AOBDeviceBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetActorTickEnabled(bHasProgress);
 }
 
 void AOBDeviceBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
