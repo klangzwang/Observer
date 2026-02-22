@@ -53,7 +53,10 @@ public class ObserverEditor : ModuleRules
 				"Blutility",
 				"UMG",
 				"UMGEditor",
-				"MoviePlayer"
+				"MoviePlayer",
+				"Json",
+				"JsonUtilities",
+				"GraphEditor"
 			}
         );
 

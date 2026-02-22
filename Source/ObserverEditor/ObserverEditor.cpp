@@ -1,5 +1,6 @@
 #include "ObserverEditor.h"
 #include "GameEditorToolSet.h"
+#include "GameEditorSnippets.h"
 #include "SlateExtras.h"
 
 #define LOCTEXT_NAMESPACE "ObserverEditor"
@@ -19,14 +20,24 @@ class FObserverEditorModule : public FDefaultGameModuleImpl
 				ToolMenusHandle = UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateStatic(&FGameEditorToolSet::RegisterGameEditorMenus));
 			}
 		}
+
+		FGlobalTabmanager::Get()->RegisterNomadTabSpawner("Snippets",
+			FOnSpawnTab::CreateRaw(this, &FGameEditorSnippets::OnSpawnTab))
+			.SetDisplayName(FText::FromString("Snippets"))
+			.SetMenuType(ETabSpawnerMenuType::Enabled);
 	}
 
 	virtual void ShutdownModule() override
 	{
-		if (UObjectInitialized() && ToolMenusHandle.IsValid())
+		if (UObjectInitialized())
 		{
-			UToolMenus::UnRegisterStartupCallback(ToolMenusHandle);
+			if (ToolMenusHandle.IsValid())
+			{
+				UToolMenus::UnRegisterStartupCallback(ToolMenusHandle);
+			}
 		}
+
+		FGlobalTabmanager::Get()->UnregisterNomadTabSpawner("Snippets");
 	}
 
 private:
