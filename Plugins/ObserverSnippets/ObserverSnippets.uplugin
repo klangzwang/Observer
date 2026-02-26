@@ -1,0 +1,12 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"Modules": [
+		{
+			"Name": "ObserverSnippets",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}

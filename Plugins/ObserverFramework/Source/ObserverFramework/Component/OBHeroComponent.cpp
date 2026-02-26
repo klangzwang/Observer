@@ -428,7 +428,7 @@ void UOBHeroComponent::MovementRouting(const FInputActionInstance& Instance)
 				if (ActionName == "IA_Use")
 				{
 					Input.IsUsing = true;
-					GetCharacter()->PerformInteractionCheck();
+					//GetCharacter()->PerformInteractionCheck();
 				}
 
 				//

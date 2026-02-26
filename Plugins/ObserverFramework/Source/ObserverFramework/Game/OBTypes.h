@@ -17,13 +17,6 @@ enum class EInteractionResult : uint8
 };
 
 UENUM(BlueprintType)
-enum class EInteractionColliderArt : uint8
-{
-	Sphere,
-	Box
-};
-
-UENUM(BlueprintType)
 enum class EFootSideType : uint8
 {
     None,

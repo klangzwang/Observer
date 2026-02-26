@@ -127,6 +127,7 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Observer|Character")
     FGenericTeamId GenericTeamId;
 
+/*
 //
 // Interaction
 //
@@ -144,6 +145,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Observer|Character")
 	float InteractionRange = 1000.f;
+*/
 
 //
 // Health

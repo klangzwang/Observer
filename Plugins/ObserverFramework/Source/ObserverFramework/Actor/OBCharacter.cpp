@@ -7,7 +7,7 @@
 #include "OBSkeletalMeshComponent.h"
 #include "OBStealth.h"
 #include "OBAbilitySystemComponent.h"
-#include "IOBInteractable.h"
+//#include "IOBInteractable.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
@@ -305,6 +305,7 @@ FGenericTeamId AOBCharacter::GetGenericTeamId() const
 	return uint8(CombatTeam);
 }
 
+/*
 void AOBCharacter::PerformInteractionCheck()
 {
 	FVector ViewStart;
@@ -365,6 +366,7 @@ void AOBCharacter::LineTrace(FHitResult& OutHitResult, const UWorld* World, cons
 		OutHitResult = HitResult;
 	}
 }
+*/
 
 //
 // Attack and Damage

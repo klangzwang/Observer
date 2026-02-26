@@ -9,7 +9,7 @@ template <typename InterfaceType> class TScriptInterface;
 class AActor;
 class UActorComponent;
 class UObject;
-class IOBInteractable;
+//class IOBInteractable;
 struct FFrame;
 struct FHitResult;
 struct FOverlapResult;
@@ -47,14 +47,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Actor", meta=(DefaultToSelf="TargetActor", ComponentClass="/Script/Engine.ActorComponent", DeterminesOutputType="ComponentClass"))
 	static TArray<UActorComponent*> FindComponentsByClass(AActor* TargetActor, TSubclassOf<UActorComponent> ComponentClass, bool bIncludeChildActors = true);
 
-public:
+//public:
 
-	UFUNCTION(BlueprintCallable)
-	static AActor* GetActorFromInteractableTarget(TScriptInterface<IOBInteractable> InteractableTarget);
+	//UFUNCTION(BlueprintCallable)
+	//static AActor* GetActorFromInteractableTarget(TScriptInterface<IOBInteractable> InteractableTarget);
 
-	UFUNCTION(BlueprintCallable)
-	static void GetInteractableTargetsFromActor(AActor* Actor, TArray<TScriptInterface<IOBInteractable>>& OutInteractableTargets);
+	//UFUNCTION(BlueprintCallable)
+	//static void GetInteractableTargetsFromActor(AActor* Actor, TArray<TScriptInterface<IOBInteractable>>& OutInteractableTargets);
 
-	static void AppendInteractableTargetsFromOverlapResults(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IOBInteractable>>& OutInteractableTargets);
-	static void AppendInteractableTargetsFromHitResult(const FHitResult& HitResult, TArray<TScriptInterface<IOBInteractable>>& OutInteractableTargets);
+	//static void AppendInteractableTargetsFromOverlapResults(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IOBInteractable>>& OutInteractableTargets);
+	//static void AppendInteractableTargetsFromHitResult(const FHitResult& HitResult, TArray<TScriptInterface<IOBInteractable>>& OutInteractableTargets);
 };

@@ -8,11 +8,6 @@
 			"Name": "ObserverGame",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
-		},
-		{
-			"Name": "ObserverEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

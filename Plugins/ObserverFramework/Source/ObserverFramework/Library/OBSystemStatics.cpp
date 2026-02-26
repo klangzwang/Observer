@@ -7,7 +7,7 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/PrimitiveComponent.h"
 #include "Engine/OverlapResult.h"
-#include "IOBInteractable.h"
+//#include "IOBInteractable.h"
 #include "UObject/ScriptInterface.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(OBSystemStatics)
@@ -122,6 +122,7 @@ TArray<UActorComponent*> UOBSystemStatics::FindComponentsByClass(AActor* TargetA
 	return MoveTemp(Components);
 }
 
+/*
 AActor* UOBSystemStatics::GetActorFromInteractableTarget(TScriptInterface<IOBInteractable> InteractableTarget)
 {
 	if (UObject* Object = InteractableTarget.GetObject())
@@ -192,3 +193,4 @@ void UOBSystemStatics::AppendInteractableTargetsFromHitResult(const FHitResult& 
 		OutInteractableTargets.AddUnique(InteractableComponent);
 	}
 }
+*/
